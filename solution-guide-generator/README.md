@@ -14,6 +14,7 @@ The Solution Guide Generator takes call transcripts from customer conversations 
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Python 3.13+
 - uv package manager
 - Glean API access (instance URL and API token)
@@ -21,16 +22,19 @@ The Solution Guide Generator takes call transcripts from customer conversations 
 ### Installation
 
 1. **Clone and navigate to the project:**
+
    ```bash
    cd solution-guide-generator
    ```
 
 2. **Install dependencies:**
+
    ```bash
    uv sync
    ```
 
 3. **Set up environment variables:**
+
    ```bash
    cp ../.env.example .env
    # Edit .env with your Glean credentials:
@@ -39,6 +43,7 @@ The Solution Guide Generator takes call transcripts from customer conversations 
    ```
 
 4. **Run the application:**
+
    ```bash
    uv run uvicorn app.main:app --reload
    ```
@@ -49,7 +54,7 @@ The Solution Guide Generator takes call transcripts from customer conversations 
 
 ### Web Interface
 
-1. **Enter company name** (e.g., "IntelXLabs")
+1. **Enter company name** (e.g., "TechCorp")
 2. **Paste call transcript** from your customer conversation
 3. **Add optional context** (use case, technical requirements, etc.)
 4. **Click "Generate Solution Guide"**
@@ -72,11 +77,13 @@ curl -X POST "http://localhost:8000/api/v1/generate-guide" \
 ### Example Input/Output
 
 **Input:**
-- Company: "IntelXLabs"  
-- Transcript: Technical demo call discussing HOA financial management platform
-- Context: "Building HOA financial management with bank connectivity and Stripe integration"
+
+- Company: "TechCorp"  
+- Transcript: Technical demo call discussing financial technology requirements
+- Context: "Building fintech platform with bank connectivity and payment processing integration"
 
 **Output:**
+
 - Complete technical solution guide with implementation details
 - Specific API recommendations and code examples
 - Integration roadmap and next steps
@@ -85,6 +92,7 @@ curl -X POST "http://localhost:8000/api/v1/generate-guide" \
 ## 🏗️ Architecture
 
 ### Project Structure
+
 ```
 solution-guide-generator/
 ├── app/
@@ -213,6 +221,7 @@ open htmlcov/index.html
 ### API Documentation
 
 When running in debug mode, visit:
+
 - **Swagger UI**: <http://localhost:8000/docs>
 - **ReDoc**: <http://localhost:8000/redoc>
 
@@ -242,16 +251,19 @@ When running in debug mode, visit:
 ### Common Issues
 
 **Environment validation fails:**
+
 - Check your `.env` file exists and has correct values
 - Verify Glean instance URL doesn't include `https://`
 - Confirm API token has correct permissions
 
 **Application won't start:**
+
 - Ensure Python 3.13+ is installed
 - Run `uv sync` to install dependencies
 - Check for port conflicts (default: 8000)
 
 **API calls fail:**
+
 - Verify network connectivity to Glean instance
 - Check API token hasn't expired
 - Review logs for detailed error messages
@@ -305,4 +317,4 @@ For technical support or questions:
 
 ---
 
-*Built with ❤️ using Python 3.13, FastAPI, and modern development practices.* 
+*Built with ❤️ using Python 3.13, FastAPI, and modern development practices.*

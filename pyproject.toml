@@ -1,7 +1,16 @@
 [project]
 name = "explore"
 version = "0.1.0"
-description = "Add your description here"
+description = "Plaid solutions exploration workspace"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = ["solution-guide-generator"]
+
+[tool.uv.workspace]
+members = ["solution-guide-generator"]
+
+[tool.uv.sources]
+"solution-guide-generator" = { workspace = true }
+
+[tool.uv]
+dev-dependencies = []

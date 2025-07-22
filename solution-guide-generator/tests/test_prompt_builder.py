@@ -15,9 +15,9 @@ class TestPromptBuilder:
 
     def test_initialization(self, prompt_builder):
         """Test PromptBuilder initialization."""
-        assert prompt_builder.intelxlabs_example is not None
-        assert "IntelXLabs + Plaid" in prompt_builder.intelxlabs_example
-        assert "What You're Building" in prompt_builder.intelxlabs_example
+        assert prompt_builder.template_example is not None
+        assert "CompanyName + Plaid" in prompt_builder.template_example
+        assert "What You're Building" in prompt_builder.template_example
 
     def test_build_solution_guide_prompt_basic(self, prompt_builder):
         """Test basic solution guide prompt building."""
@@ -143,12 +143,12 @@ class TestPromptBuilder:
         assert "4. What integration" in prompt
         assert "5. Who are their likely" in prompt
 
-    def test_intelxlabs_example_content(self, prompt_builder):
-        """Test that IntelXLabs example contains expected content."""
-        example = prompt_builder.intelxlabs_example
+    def test_template_example_content(self, prompt_builder):
+        """Test that template example contains expected content."""
+        example = prompt_builder.template_example
 
         expected_sections = [
-            "# IntelXLabs + Plaid // Solutions Guide",
+            "# CompanyName + Plaid // Solutions Guide",
             "## What You're Building",
             "## Core Plaid Integration",
             "### 1. Bank Account Connection",

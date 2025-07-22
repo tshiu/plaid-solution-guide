@@ -10,17 +10,17 @@ class PromptBuilder:
     """Builds sophisticated prompts for generating solution guides.
 
     This class creates structured prompts that guide the LLM to generate
-    technical solution guides in the style of the successful IntelXLabs example.
+    technical solution guides using established templates and patterns.
     """
 
     def __init__(self):
         """Initialize the prompt builder with templates."""
-        self.intelxlabs_example = self._load_intelxlabs_example()
+        self.template_example = self._load_template_example()
 
-    def _load_intelxlabs_example(self) -> str:
-        """Load the IntelXLabs guide example as a reference template."""
+    def _load_template_example(self) -> str:
+        """Load the guide template as a reference example."""
         return """
-# IntelXLabs + Plaid // Solutions Guide
+# CompanyName + Plaid // Solutions Guide
 
 ## What You're Building
 
@@ -116,7 +116,7 @@ that matches the style and format of the example provided.
 {additional_context or "No additional context provided"}
 
 ## EXAMPLE SOLUTION GUIDE STYLE:
-{self.intelxlabs_example}
+        {self.template_example}
 
 ## INSTRUCTIONS:
 Generate a solution guide for {company_name} that follows these principles:

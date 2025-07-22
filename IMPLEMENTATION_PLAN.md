@@ -8,7 +8,7 @@ Build a web application to help sales engineers automatically generate customize
 
 1. Accept call transcripts, company names, and additional context
 2. Research companies using Glean's APIs
-3. Generate tailored solution guides similar to the IntelXLabs example
+3. Generate tailored solution guides using established templates
 4. Provide a clean, maintainable codebase for future enhancements
 
 ### Target Users
@@ -219,7 +219,7 @@ class PromptBuilder:
         Returns:
             Formatted prompt string for LLM
         """
-        # Detailed prompt construction based on IntelXLabs example
+        # Detailed prompt construction based on established patterns
 ```
 
 **Why separate prompt builder**: Easier to test, modify, and version control prompts.
@@ -336,7 +336,7 @@ def test_build_solution_guide_prompt():
 
 #### Step 5.1: Solution Guide Generation Prompt
 
-Based on the successful IntelXLabs approach, create a structured prompt:
+Based on successful client engagement patterns, create a structured prompt:
 
 ```python
 SOLUTION_GUIDE_PROMPT_TEMPLATE = """
@@ -363,7 +363,7 @@ Generate a solution guide that:
 6. Provides actionable next steps
 
 Follow the structure and tone of this example:
-[Include condensed version of IntelXLabs guide as example]
+[Include condensed version of template guide as example]
 
 Generate the guide for {company_name} now:
 """

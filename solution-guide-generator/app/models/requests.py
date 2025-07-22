@@ -14,13 +14,13 @@ class TranscriptRequest(BaseModel):
         ...,
         min_length=1,
         description="Call transcript content",
-        example="Intelxlabs + Plaid Technical Demo\n\nParticipants...",
+        example="TechCorp + Plaid Technical Demo\n\nParticipants...",
     )
     company_name: str = Field(
         ...,
         min_length=1,
         description="Target company name",
-        example="IntelXLabs",
+        example="TechCorp",
     )
     additional_context: str | None = Field(
         None,
