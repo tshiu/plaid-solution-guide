@@ -120,6 +120,19 @@ wheels = [
 ]
 
 [[package]]
+name = "glean-api-client"
+version = "0.7.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/fb/7b/d6fa0fdd803047a4e1cb2824073b7aa42ff37a840ea0d459ba5ea1a1bc90/glean_api_client-0.7.1.tar.gz", hash = "sha256:45d8d94554a8545ff931e4beef745d2589ca3267bed846a32cdf0cec14fb7938", size = 219564, upload-time = "2025-07-11T22:26:10.458Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/75/1f/79e74457035e2746c79217a3e4b115ef154691b93d09d950f6c3e08d20ea/glean_api_client-0.7.1-py3-none-any.whl", hash = "sha256:1fab9aa28a68ec2943b88584c86f65950d9599e2207095a8d038df04eeb83223", size = 462728, upload-time = "2025-07-11T22:26:08.91Z" },
+]
+
+[[package]]
 name = "h11"
 version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -421,7 +434,7 @@ version = "0.1.0"
 source = { editable = "solution-guide-generator" }
 dependencies = [
     { name = "fastapi" },
-    { name = "httpx" },
+    { name = "glean-api-client" },
     { name = "jinja2" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
@@ -448,7 +461,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.104.0" },
-    { name = "httpx", specifier = ">=0.25.0" },
+    { name = "glean-api-client", specifier = ">=0.7.1" },
     { name = "jinja2", specifier = ">=3.1.0" },
     { name = "pydantic", specifier = ">=2.5.0" },
     { name = "pydantic-settings", specifier = ">=2.1.0" },

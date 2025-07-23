@@ -318,3 +318,23 @@ For technical support or questions:
 ---
 
 *Built with ❤️ using Python 3.13, FastAPI, and modern development practices.*
+
+## Key Dependencies
+
+### Core Technologies
+- **FastAPI**: Modern, fast web framework for building APIs
+- **Python 3.13**: Latest Python with enhanced performance and type hints
+- **Pydantic**: Data validation and settings management with type annotations
+- **Official Glean SDK**: Using `glean-api-client` for reliable API interactions
+
+### Development & Testing
+- **UV**: Fast Python package manager for dependency management
+- **Pytest**: Comprehensive testing framework with async support
+- **Ruff**: Lightning-fast Python linter and formatter
+
+### API Integration
+- **Glean Enterprise Search**: Official `glean-api-client` SDK for:
+  - Company research via search API
+  - AI-powered chat interactions
+  - Built-in retry logic and error handling
+  - Type-safe API responses

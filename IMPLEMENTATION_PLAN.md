@@ -140,11 +140,11 @@ from typing import Optional
 
 class TranscriptRequest(BaseModel):
     """Request model for generating solution guides from transcripts."""
-    
+
     transcript: str = Field(..., min_length=1, description="Call transcript content")
     company_name: str = Field(..., min_length=1, description="Target company name")
     additional_context: Optional[str] = Field(None, description="Extra context about the use case")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -169,7 +169,7 @@ logger = logging.getLogger(__name__)
 
 class GleanClient:
     """Client for interacting with Glean APIs."""
-    
+
     def __init__(self):
         """Initialize Glean client with configuration."""
         self.base_url = f"https://{settings.glean_instance}"
@@ -177,11 +177,11 @@ class GleanClient:
             "Authorization": f"Bearer {settings.glean_api_token}",
             "Content-Type": "application/json"
         }
-    
+
     async def search_company(self, company_name: str) -> Dict[str, Any]:
         """Search for company information using Glean."""
         # Implementation details here
-    
+
     async def chat_query(self, message: str, context: Optional[List[str]] = None) -> str:
         """Query Glean chat for additional insights."""
         # Implementation details here
@@ -199,7 +199,7 @@ logger = logging.getLogger(__name__)
 
 class PromptBuilder:
     """Builds prompts for generating solution guides."""
-    
+
     def build_solution_guide_prompt(
         self,
         transcript: str,
@@ -209,13 +209,13 @@ class PromptBuilder:
     ) -> str:
         """
         Build a comprehensive prompt for generating solution guides.
-        
+
         Args:
             transcript: Call transcript content
             company_name: Target company name
             company_research: Research data from Glean
             additional_context: Optional additional context
-            
+
         Returns:
             Formatted prompt string for LLM
         """
@@ -241,10 +241,10 @@ logger = logging.getLogger(__name__)
 async def generate_solution_guide(request: TranscriptRequest):
     """
     Generate a solution guide from call transcript.
-    
+
     Args:
         request: Transcript request containing company info and transcript
-        
+
     Returns:
         Generated solution guide in markdown format
     """
@@ -266,32 +266,36 @@ async def generate_solution_guide(request: TranscriptRequest):
 ```html
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Solution Guide Generator</title>
-    <style>/* Clean, modern CSS */</style>
-</head>
-<body>
+    <style>
+      /* Clean, modern CSS */
+    </style>
+  </head>
+  <body>
     <div class="container">
-        <h1>Solution Guide Generator</h1>
-        <form id="guideForm">
-            <div class="form-group">
-                <label for="company">Company Name:</label>
-                <input type="text" id="company" required>
-            </div>
-            <div class="form-group">
-                <label for="transcript">Call Transcript:</label>
-                <textarea id="transcript" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="context">Additional Context (Optional):</label>
-                <textarea id="context"></textarea>
-            </div>
-            <button type="submit">Generate Solution Guide</button>
-        </form>
-        <div id="result"></div>
+      <h1>Solution Guide Generator</h1>
+      <form id="guideForm">
+        <div class="form-group">
+          <label for="company">Company Name:</label>
+          <input type="text" id="company" required />
+        </div>
+        <div class="form-group">
+          <label for="transcript">Call Transcript:</label>
+          <textarea id="transcript" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="context">Additional Context (Optional):</label>
+          <textarea id="context"></textarea>
+        </div>
+        <button type="submit">Generate Solution Guide</button>
+      </form>
+      <div id="result"></div>
     </div>
-    <script>/* JavaScript for form handling */</script>
-</body>
+    <script>
+      /* JavaScript for form handling */
+    </script>
+  </body>
 </html>
 ```
 
@@ -340,9 +344,9 @@ Based on successful client engagement patterns, create a structured prompt:
 
 ```python
 SOLUTION_GUIDE_PROMPT_TEMPLATE = """
-You are an expert sales engineer creating technical solution guides. 
+You are an expert sales engineer creating technical solution guides.
 
-Based on this call transcript from {company_name} and research data, generate a concise, 
+Based on this call transcript from {company_name} and research data, generate a concise,
 technical solution guide following this exact format and style:
 
 TRANSCRIPT:
@@ -356,7 +360,7 @@ ADDITIONAL CONTEXT:
 
 Generate a solution guide that:
 1. Focuses on technical implementation details
-2. Avoids business jargon 
+2. Avoids business jargon
 3. Uses clear, scannable formatting
 4. Includes specific API calls and code examples where relevant
 5. Addresses questions raised in the call
@@ -379,12 +383,12 @@ from typing import Optional
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
-    
+
     glean_instance: str
     glean_api_token: str
     debug: bool = False
     log_level: str = "INFO"
-    
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
@@ -394,7 +398,7 @@ settings = Settings()
 
 #### Step 6.2: User Documentation (`README.md`)
 
-```markdown
+````markdown
 # Solution Guide Generator
 
 ## Quick Start
@@ -403,6 +407,7 @@ settings = Settings()
    ```bash
    uv sync
    ```
+````
 
 2. **Configure environment:**
 
@@ -512,3 +517,4 @@ uv run ruff check .
 ---
 
 This plan provides a solid foundation for building a maintainable, well-documented application that can grow with your needs while following Python best practices.
+```

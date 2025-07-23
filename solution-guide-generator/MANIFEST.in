@@ -1,0 +1,6 @@
+include README.md
+include .env.example
+recursive-include app/static *
+recursive-include tests *.py
+global-exclude __pycache__
+global-exclude *.py[co] 

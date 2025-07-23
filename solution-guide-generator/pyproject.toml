@@ -8,7 +8,7 @@ dependencies = [
     "uvicorn[standard]>=0.24.0",
     "pydantic>=2.5.0",
     "pydantic-settings>=2.1.0",
-    "httpx>=0.25.0",
+    "glean-api-client>=0.7.1",
     "python-dotenv>=1.0.0",
     "jinja2>=3.1.0",
 ]
@@ -28,6 +28,15 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["app"]
 
+[tool.hatch.build.targets.wheel.sources]
+"app" = "app"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/app",
+    "/tests",
+]
+
 [tool.ruff]
 target-version = "py313"
 line-length = 120
@@ -42,7 +51,7 @@ indent-style = "space"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-addopts = "--cov=app --cov-report=term-missing" 
+addopts = "--cov=app --cov-report=term-missing"
 
 [dependency-groups]
 dev = [

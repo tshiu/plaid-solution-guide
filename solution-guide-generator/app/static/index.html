@@ -1,394 +1,713 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Solution Guide Generator</title>
+    <!-- Add marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+
+      .header {
+        background: #2c3e50;
+        color: white;
+        padding: 2rem;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      .main-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        padding: 2rem;
+        min-height: 80vh;
+      }
+
+      .form-section,
+      .result-section {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+      }
+
+      .form-section h2,
+      .result-section h2 {
+        margin-bottom: 1.5rem;
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 0.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #555;
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+        font-family: inherit;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+      }
+
+      .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .submit-btn {
+        background: #3498db;
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        width: 100%;
+        font-weight: 600;
+      }
+
+      .submit-btn:hover {
+        background: #2980b9;
+      }
+
+      .submit-btn:disabled {
+        background: #bdc3c7;
+        cursor: not-allowed;
+      }
+
+      #result {
+        min-height: 300px;
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        background: white;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .success {
+        background: #d4edda;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        border: 1px solid #c3e6cb;
+      }
+
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        border: 1px solid #f5c6cb;
+      }
+
+      /* Enhanced styling for rendered markdown */
+      .guide-output {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 2rem;
+        margin: 1rem 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        max-height: 600px;
+        overflow-y: auto;
+      }
+
+      /* Markdown content styling */
+      .guide-output h1 {
+        color: #2c3e50;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 3px solid #3498db;
+        padding-bottom: 0.5rem;
+      }
+
+      .guide-output h2 {
+        color: #34495e;
+        font-size: 1.5rem;
+        margin: 1.5rem 0 1rem 0;
+        border-left: 4px solid #3498db;
+        padding-left: 1rem;
+      }
+
+      .guide-output h3 {
+        color: #2c3e50;
+        font-size: 1.25rem;
+        margin: 1.25rem 0 0.75rem 0;
+        font-weight: 600;
+      }
+
+      .guide-output h4 {
+        color: #34495e;
+        font-size: 1.1rem;
+        margin: 1rem 0 0.5rem 0;
+        font-weight: 600;
+      }
+
+      .guide-output p {
+        margin-bottom: 1rem;
+        line-height: 1.7;
+        color: #444;
+      }
+
+      .guide-output ul,
+      .guide-output ol {
+        margin: 1rem 0;
+        padding-left: 2rem;
+      }
+
+      .guide-output li {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+      }
+
+      .guide-output code {
+        background: #f1f2f6;
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-family: "Monaco", "Consolas", monospace;
+        font-size: 0.9rem;
+        color: #e74c3c;
+      }
+
+      .guide-output pre {
+        background: #2c3e50;
+        color: #ecf0f1;
+        padding: 1rem;
+        border-radius: 6px;
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+
+      .guide-output pre code {
+        background: none;
+        color: inherit;
+        padding: 0;
+        font-size: 0.9rem;
+      }
+
+      .guide-output blockquote {
+        border-left: 4px solid #3498db;
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        background: #f8f9fa;
+        font-style: italic;
+        color: #666;
+      }
+
+      .guide-output table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.9rem;
+      }
+
+      .guide-output th,
+      .guide-output td {
+        border: 1px solid #ddd;
+        padding: 0.75rem;
+        text-align: left;
+      }
+
+      .guide-output th {
+        background: #3498db;
+        color: white;
+        font-weight: 600;
+      }
+
+      .guide-output tr:nth-child(even) {
+        background: #f8f9fa;
+      }
+
+      /* Special styling for emphasized content */
+
+      .guide-output strong {
+        color: #2c3e50;
+        font-weight: 700;
+      }
+
+      .copy-btn {
+        background: #27ae60;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 1rem;
+        transition: background 0.3s ease;
+        font-weight: 500;
+      }
+
+      .copy-btn:hover {
+        background: #218838;
+      }
+
+      .raw-toggle {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 0.5rem;
+        font-size: 0.85rem;
+        transition: background 0.3s ease;
+      }
+
+      .raw-toggle:hover {
+        background: #5a6268;
+      }
+
+      @media (max-width: 768px) {
+        .main-content {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+          padding: 1rem;
         }
 
         .header {
-            background: #2c3e50;
-            color: white;
-            padding: 2rem;
-            text-align: center;
+          padding: 1.5rem;
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+          font-size: 2rem;
         }
 
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            padding: 2rem;
-        }
-
-        .form-section {
-            background: #f8f9fa;
-            padding: 2rem;
-            border-radius: 8px;
-        }
-
-        .form-section h2 {
-            color: #2c3e50;
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e1e8ed;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        #transcript {
-            min-height: 200px;
-        }
-
-        .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .submit-btn:disabled {
-            background: #95a5a6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
+        .form-section,
         .result-section {
-            background: #f8f9fa;
-            padding: 2rem;
-            border-radius: 8px;
-        }
-
-        .result-section h2 {
-            color: #2c3e50;
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #667eea;
-        }
-
-        .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+          padding: 1.5rem;
         }
 
         .guide-output {
-            background: white;
-            border: 1px solid #e1e8ed;
-            border-radius: 6px;
-            padding: 1.5rem;
-            white-space: pre-wrap;
-            font-family: 'Courier New', monospace;
-            max-height: 600px;
-            overflow-y: auto;
-            line-height: 1.5;
+          padding: 1rem;
         }
-
-        .error {
-            background: #ff6b6b;
-            color: white;
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-        }
-
-        .success {
-            background: #51cf66;
-            color: white;
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-        }
-
-        .copy-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 1rem;
-            transition: background 0.3s ease;
-        }
-
-        .copy-btn:hover {
-            background: #218838;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-                padding: 1rem;
-            }
-
-            .header {
-                padding: 1.5rem;
-            }
-
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .form-section,
-            .result-section {
-                padding: 1.5rem;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>Solution Guide Generator</h1>
-            <p>Transform call transcripts into technical solution guides using AI</p>
-        </div>
+      <div class="header">
+        <h1>Solution Guide Generator</h1>
+        <p>
+          Transform call transcripts into beautifully formatted technical
+          solution guides using AI
+        </p>
+      </div>
 
-        <div class="main-content">
-            <div class="form-section">
-                <h2>Generate Solution Guide</h2>
-                <form id="guideForm">
-                    <div class="form-group">
-                        <label for="company">Company Name *</label>
-                        <input 
-                            type="text" 
-                            id="company" 
-                            name="company" 
-                            required 
-                            placeholder="e.g., TechCorp"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="transcript">Call Transcript *</label>
-                        <textarea 
-                            id="transcript" 
-                            name="transcript" 
-                            required 
-                            placeholder="Paste your call transcript here..."
-                        ></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="context">Additional Context (Optional)</label>
-                        <textarea 
-                            id="context" 
-                            name="context" 
-                            placeholder="Any additional context about the use case, technical requirements, etc."
-                        ></textarea>
-                    </div>
-
-                    <button type="submit" class="submit-btn" id="submitBtn">
-                        Generate Solution Guide
-                    </button>
-                </form>
+      <div class="main-content">
+        <div class="form-section">
+          <h2>Generate Solution Guide</h2>
+          <form id="guideForm">
+            <div class="form-group">
+              <label for="company">Company Name *</label>
+              <input
+                type="text"
+                id="company"
+                name="company"
+                required
+                placeholder="e.g., TechCorp"
+              />
             </div>
 
-            <div class="result-section">
-                <h2>Generated Solution Guide</h2>
-                <div id="result">
-                    <p style="color: #666; text-align: center; padding: 2rem;">
-                        Fill in the form and click "Generate Solution Guide" to get started.
-                    </p>
-                </div>
+            <div class="form-group">
+              <label for="transcript">Call Transcript *</label>
+              <textarea
+                id="transcript"
+                name="transcript"
+                required
+                placeholder="Paste your call transcript here..."
+              ></textarea>
             </div>
+
+            <div class="form-group">
+              <label for="context">Additional Context (Optional)</label>
+              <textarea
+                id="context"
+                name="context"
+                placeholder="Any additional context about the use case, technical requirements, etc."
+              ></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+              Generate Solution Guide
+            </button>
+          </form>
         </div>
+
+        <div class="result-section">
+          <h2>Generated Solution Guide</h2>
+          <div id="result">
+            <p style="color: #666; text-align: center; padding: 2rem">
+              Fill in the form and click "Generate Solution Guide" to get
+              started.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-        document.getElementById('guideForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitBtn');
-            const resultDiv = document.getElementById('result');
-            
-            // Get form data
-            const formData = {
-                company_name: document.getElementById('company').value.trim(),
-                transcript: document.getElementById('transcript').value.trim(),
-                additional_context: document.getElementById('context').value.trim() || null
-            };
-            
-            // Validate required fields
-            if (!formData.company_name || !formData.transcript) {
-                showError('Please fill in all required fields (Company Name and Call Transcript).');
-                return;
-            }
-            
-            // Show loading state
+      let currentGuide = "";
+      let showingRaw = false;
+
+      // Configure marked options for better rendering
+      marked.setOptions({
+        breaks: true,
+        gfm: true,
+        sanitize: false,
+      });
+
+      document
+        .getElementById("guideForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const submitBtn = document.getElementById("submitBtn");
+          const originalBtnText = submitBtn.textContent;
+
+          try {
+            // Disable submit button and show loading
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Generating...';
+            submitBtn.textContent = "Generating...";
             showLoading();
-            
-            try {
-                const response = await fetch('/api/v1/generate-guide', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail || 'Failed to generate guide');
-                }
-                
-                const data = await response.json();
-                showResult(data.guide, formData.company_name);
-                
-            } catch (error) {
-                console.error('Error:', error);
-                showError(`Error generating guide: ${error.message}`);
-            } finally {
-                // Reset button state
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Generate Solution Guide';
+
+            // Get form data
+            const formData = new FormData(e.target);
+            const data = {
+              transcript: formData.get("transcript"),
+              company_name: formData.get("company"),
+              additional_context: formData.get("context") || null,
+            };
+
+            // Make API request
+            const response = await fetch("/api/v1/generate-guide", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              currentGuide = result.solution_guide;
+              showResult(result.solution_guide, data.company_name);
+            } else {
+              showError(result.detail || "Failed to generate solution guide");
             }
+          } catch (error) {
+            console.error("Error:", error);
+            showError("Network error occurred. Please try again.");
+          } finally {
+            // Re-enable submit button
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+          }
         });
-        
-        function showLoading() {
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = `
+
+      function showLoading() {
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = `
                 <div class="loading">
                     <div class="loading-spinner"></div>
                     <p>Researching company and generating solution guide...</p>
                     <p style="font-size: 0.9rem; opacity: 0.7;">This may take 30-60 seconds</p>
                 </div>
             `;
-        }
-        
-        function showResult(guide, companyName) {
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = `
+      }
+
+      function showResult(guide, companyName) {
+        const resultDiv = document.getElementById("result");
+
+        // Render markdown as HTML
+        const renderedHtml = marked.parse(guide);
+
+        resultDiv.innerHTML = `
                 <div class="success">
                     ✅ Solution guide generated successfully for ${companyName}!
                 </div>
-                <div class="guide-output" id="guideContent">${guide}</div>
-                <button class="copy-btn" onclick="copyToClipboard()">
-                    📋 Copy to Clipboard
-                </button>
+                <div class="guide-output" id="guideContent">${renderedHtml}</div>
+                <div style="margin-top: 1rem;">
+                    <button class="copy-btn" onclick="copyToClipboard()">
+                        📋 Copy Markdown
+                    </button>
+                    <button class="raw-toggle" onclick="toggleRawView()">
+                        👁️ Toggle Raw View
+                    </button>
+                </div>
             `;
-        }
-        
-        function showError(message) {
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = `
+      }
+
+      function showError(message) {
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = `
                 <div class="error">
                     ❌ ${message}
                 </div>
             `;
+      }
+
+      async function copyToClipboard() {
+        const copyBtn = document.querySelector(".copy-btn");
+        const originalText = copyBtn.textContent;
+
+        // Check if we have content to copy
+        if (!currentGuide) {
+          alert("No guide content to copy. Please generate a guide first.");
+          return;
         }
-        
-        function copyToClipboard() {
-            const guideContent = document.getElementById('guideContent').textContent;
-            navigator.clipboard.writeText(guideContent).then(() => {
-                const copyBtn = document.querySelector('.copy-btn');
-                const originalText = copyBtn.textContent;
-                copyBtn.textContent = '✅ Copied!';
-                setTimeout(() => {
-                    copyBtn.textContent = originalText;
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-                alert('Failed to copy to clipboard');
-            });
+
+        try {
+          // Try modern clipboard API first
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(currentGuide);
+            showCopySuccess(copyBtn, originalText);
+            return;
+          }
+
+          // Fallback to older method
+          const textArea = document.createElement("textarea");
+          textArea.value = currentGuide;
+          textArea.style.position = "fixed";
+          textArea.style.left = "-999999px";
+          textArea.style.top = "-999999px";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+
+          const successful = document.execCommand("copy");
+          document.body.removeChild(textArea);
+
+          if (successful) {
+            showCopySuccess(copyBtn, originalText);
+          } else {
+            throw new Error("Copy command failed");
+          }
+        } catch (err) {
+          console.error("Failed to copy:", err);
+
+          // Final fallback - show the text in a prompt for manual copy
+          const userAgent = navigator.userAgent.toLowerCase();
+          const isMac = userAgent.indexOf("mac") !== -1;
+          const shortcut = isMac ? "Cmd+C" : "Ctrl+C";
+
+          // Create a modal with selectable text
+          showCopyModal(currentGuide, shortcut);
         }
-        
-        // Auto-resize textareas
-        document.querySelectorAll('textarea').forEach(textarea => {
-            textarea.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = this.scrollHeight + 'px';
-            });
+      }
+
+      function showCopySuccess(copyBtn, originalText) {
+        copyBtn.textContent = "✅ Copied!";
+        copyBtn.style.background = "#27ae60";
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+          copyBtn.style.background = "";
+        }, 2000);
+      }
+
+      function showCopyModal(text, shortcut) {
+        // Create modal overlay
+        const modal = document.createElement("div");
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+        `;
+
+        // Create modal content
+        const modalContent = document.createElement("div");
+        modalContent.style.cssText = `
+          background: white;
+          padding: 2rem;
+          border-radius: 8px;
+          max-width: 80%;
+          max-height: 80%;
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        `;
+
+        modalContent.innerHTML = `
+          <h3 style="margin: 0 0 1rem 0; color: #2c3e50;">Copy Solution Guide</h3>
+          <p style="margin: 0 0 1rem 0; color: #666;">
+            Select all text below and press <strong>${shortcut}</strong> to copy:
+          </p>
+          <textarea readonly style="
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            resize: none;
+            background: #f8f9fa;
+          ">${text}</textarea>
+          <div style="margin-top: 1rem; text-align: right;">
+            <button onclick="this.closest('.modal-overlay').remove()" style="
+              background: #6c757d;
+              color: white;
+              border: none;
+              padding: 0.5rem 1rem;
+              border-radius: 4px;
+              cursor: pointer;
+            ">Close</button>
+          </div>
+        `;
+
+        modal.className = "modal-overlay";
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+
+        // Select all text in textarea
+        const textarea = modalContent.querySelector("textarea");
+        textarea.select();
+        textarea.focus();
+
+        // Close on background click
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) {
+            modal.remove();
+          }
         });
+
+        // Close on Escape key
+        const escapeHandler = (e) => {
+          if (e.key === "Escape") {
+            modal.remove();
+            document.removeEventListener("keydown", escapeHandler);
+          }
+        };
+        document.addEventListener("keydown", escapeHandler);
+      }
+
+      function toggleRawView() {
+        const guideContent = document.getElementById("guideContent");
+        const toggleBtn = document.querySelector(".raw-toggle");
+
+        if (showingRaw) {
+          // Show rendered markdown
+          guideContent.innerHTML = marked.parse(currentGuide);
+          guideContent.className = "guide-output";
+          toggleBtn.textContent = "👁️ Toggle Raw View";
+          showingRaw = false;
+        } else {
+          // Show raw markdown
+          guideContent.innerHTML = `<pre style="white-space: pre-wrap; font-family: 'Monaco', 'Consolas', monospace; margin: 0;">${escapeHtml(
+            currentGuide
+          )}</pre>`;
+          guideContent.className = "guide-output";
+          toggleBtn.textContent = "🎨 Toggle Rendered View";
+          showingRaw = true;
+        }
+      }
+
+      function escapeHtml(text) {
+        const map = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;",
+        };
+        return text.replace(/[&<>"']/g, function (m) {
+          return map[m];
+        });
+      }
+
+      // Auto-resize textareas
+      document.querySelectorAll("textarea").forEach((textarea) => {
+        textarea.addEventListener("input", function () {
+          this.style.height = "auto";
+          this.style.height = this.scrollHeight + "px";
+        });
+      });
     </script>
-</body>
-</html> 
+  </body>
+</html>

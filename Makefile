@@ -36,27 +36,18 @@ install:
 # Install development dependencies  
 dev: install
 	@echo "🔧 Setting up development environment..."
-	cd solution-guide-generator && uv sync --dev
+	uv sync --dev --project solution-guide-generator
 	@echo "✅ Development environment ready!"
 
 # Start the application
 run:
 	@echo "🚀 Starting Solution Guide Generator..."
-	@if [ ! -f "solution-guide-generator/.env" ]; then \
-		echo "⚠️  No .env file found. Creating from template..."; \
-		if [ -f "solution-guide-generator/.env.example" ]; then \
-			cp solution-guide-generator/.env.example solution-guide-generator/.env; \
-			echo "📝 Please edit solution-guide-generator/.env with your Glean credentials"; \
-			echo "   - GLEAN_INSTANCE=your-instance"; \
-			echo "   - GLEAN_API_TOKEN=your-token"; \
-			exit 1; \
-		else \
-			echo "❌ .env.example not found. Please create .env manually."; \
-			exit 1; \
-		fi; \
+	@if [ ! -f ".env" ]; then \
+		echo "❌ Please create .env with your Glean credentials."; \
+		exit 1; \
 	fi
 	@echo "🌟 Starting server at http://localhost:8000"
-	cd solution-guide-generator && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	uv run --project solution-guide-generator uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 # Run tests
 test:
