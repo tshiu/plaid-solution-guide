@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from glean.api_client import Glean, models
+from glean.api_client import Glean, errors
 
 from app.config import get_settings
 
@@ -26,10 +26,9 @@ class GleanClient:
     def _get_client(self) -> Glean:
         """Get or create the Glean client instance."""
         if self._client is None:
-            # Use instance name as provided - SDK handles URL construction
             self._client = Glean(
                 api_token=self.settings.glean_api_token,
-                instance=self.settings.glean_instance.strip(),
+                instance=self.settings.glean_instance,
             )
         return self._client
 
@@ -51,15 +50,7 @@ class GleanClient:
             client = self._get_client()
 
             # Use the official SDK's search API
-            search_response = await client.client.search.query_async(
-                query=search_query,
-                page_size=10,
-                request_options=models.SearchRequestOptions(
-                    # Focus on high-level company information
-                    facet_filters=[],
-                    facet_bucket_size=10,
-                ),
-            )
+            search_response = client.client.search.query(query=search_query, page_size=10)
 
             # Extract relevant information from search results
             results = []
@@ -78,6 +69,14 @@ class GleanClient:
                 "total_results": len(results),
             }
 
+        except errors.GleanError as e:
+            logger.error(f"Glean API error searching for company {company_name}: {e}")
+            return {
+                "error": f"Search failed: {str(e)}",
+                "results": [],
+                "query": search_query,
+                "total_results": 0,
+            }
         except Exception as e:
             logger.error(f"Error searching for company {company_name}: {e}")
             return {
@@ -109,18 +108,15 @@ class GleanClient:
             # Add context messages if provided
             if context:
                 for ctx in context:
-                    messages.append({"fragments": [models.ChatMessageFragment(text=ctx)]})
+                    messages.append({"fragments": [{"text": ctx}]})
 
             # Add the main question
-            messages.append({"fragments": [models.ChatMessageFragment(text=question)]})
+            messages.append({"fragments": [{"text": question}]})
 
             # Use the official SDK's chat API
-            chat_response = await client.client.chat.create_async(
-                messages=messages,
-                timeout_millis=30_000,
-            )
+            chat_response = client.client.chat.create(messages=messages, timeout_millis=30000)
 
-            # Extract the response text
+            # Extract the response text from the last message
             if hasattr(chat_response, "messages") and chat_response.messages:
                 # Get the last message (AI response)
                 last_message = chat_response.messages[-1]
@@ -128,12 +124,10 @@ class GleanClient:
                     # Combine all fragments into a single response
                     response_parts = []
                     for fragment in last_message.fragments:
-                        if hasattr(fragment, "text"):
+                        if hasattr(fragment, "text") and fragment.text:
                             response_parts.append(fragment.text)
                     return " ".join(response_parts)
-
-            # Fallback for different response structures
-            if hasattr(chat_response, "text"):
+            elif hasattr(chat_response, "text") and chat_response.text:
                 return chat_response.text
             elif hasattr(chat_response, "content"):
                 return chat_response.content
@@ -141,6 +135,9 @@ class GleanClient:
                 logger.warning(f"Unexpected chat response structure: {type(chat_response)}")
                 return str(chat_response)
 
+        except errors.GleanError as e:
+            logger.error(f"Glean API error in chat query '{question}': {e}")
+            return f"Chat query failed: {str(e)}"
         except Exception as e:
             logger.error(f"Error in chat query '{question}': {e}")
             return f"Chat query failed: {str(e)}"

@@ -1,6 +1,6 @@
 """Tests for GleanClient using official SDK."""
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -33,11 +33,10 @@ class TestGleanClient:
         mock_search_response.results = [mock_search_result]
 
         # Mock the Glean SDK client
-        with patch.object(glean_client, "_get_client") as mock_get_client:
-            mock_client = MagicMock()
-            mock_client.client.search.query_async = AsyncMock(return_value=mock_search_response)
-            mock_get_client.return_value = mock_client
+        mock_client = MagicMock()
+        mock_client.client.search.query = MagicMock(return_value=mock_search_response)
 
+        with patch.object(glean_client, "_get_client", return_value=mock_client):
             result = await glean_client.search_company("TestCorp")
 
             assert result["total_results"] == 1
@@ -47,14 +46,13 @@ class TestGleanClient:
             assert result["query"] == "company information about TestCorp business model products services"
 
     @pytest.mark.asyncio
-    async def test_search_company_http_error(self, glean_client):
-        """Test company search with API error."""
-        # Mock the Glean SDK to raise an exception
-        with patch.object(glean_client, "_get_client") as mock_get_client:
-            mock_client = MagicMock()
-            mock_client.client.search.query_async = AsyncMock(side_effect=Exception("API Error"))
-            mock_get_client.return_value = mock_client
+    async def test_search_company_glean_api_error(self, glean_client):
+        """Test company search with Glean API error."""
+        # Mock the Glean SDK client
+        mock_client = MagicMock()
+        mock_client.client.search.query = MagicMock(side_effect=Exception("API Error"))
 
+        with patch.object(glean_client, "_get_client", return_value=mock_client):
             result = await glean_client.search_company("TestCorp")
 
             assert "error" in result
@@ -62,9 +60,40 @@ class TestGleanClient:
             assert result["total_results"] == 0
 
     @pytest.mark.asyncio
-    async def test_chat_query_success(self, glean_client):
-        """Test successful chat query."""
-        # Mock the official SDK's chat response
+    async def test_search_company_http_error(self, glean_client):
+        """Test company search with generic error."""
+        # Mock the Glean SDK client
+        mock_client = MagicMock()
+        mock_client.client.search.query = MagicMock(side_effect=Exception("Generic Error"))
+
+        with patch.object(glean_client, "_get_client", return_value=mock_client):
+            result = await glean_client.search_company("TestCorp")
+
+            assert "error" in result
+            assert "Search failed" in result["error"]
+            assert result["total_results"] == 0
+
+    @pytest.mark.asyncio
+    async def test_chat_query_success_with_text_attribute(self, glean_client):
+        """Test successful chat query with fallback to text attribute."""
+        # Mock the official SDK's chat response with text attribute but no messages
+        mock_chat_response = MagicMock()
+        mock_chat_response.messages = []  # Empty messages forces fallback to text
+        mock_chat_response.text = "Test chat response"
+
+        # Mock the Glean SDK client
+        mock_client = MagicMock()
+        mock_client.client.chat.create = MagicMock(return_value=mock_chat_response)
+
+        with patch.object(glean_client, "_get_client", return_value=mock_client):
+            result = await glean_client.chat_query("Test question")
+
+            assert result == "Test chat response"
+
+    @pytest.mark.asyncio
+    async def test_chat_query_success_with_messages(self, glean_client):
+        """Test successful chat query with messages structure."""
+        # Mock the official SDK's chat response with messages
         mock_fragment = MagicMock()
         mock_fragment.text = "Test chat response"
 
@@ -72,14 +101,14 @@ class TestGleanClient:
         mock_message.fragments = [mock_fragment]
 
         mock_chat_response = MagicMock()
+        mock_chat_response.text = ""  # Force it to use messages
         mock_chat_response.messages = [mock_message]
 
         # Mock the Glean SDK client
-        with patch.object(glean_client, "_get_client") as mock_get_client:
-            mock_client = MagicMock()
-            mock_client.client.chat.create_async = AsyncMock(return_value=mock_chat_response)
-            mock_get_client.return_value = mock_client
+        mock_client = MagicMock()
+        mock_client.client.chat.create = MagicMock(return_value=mock_chat_response)
 
+        with patch.object(glean_client, "_get_client", return_value=mock_client):
             result = await glean_client.chat_query("Test question")
 
             assert result == "Test chat response"
@@ -87,7 +116,7 @@ class TestGleanClient:
     @pytest.mark.asyncio
     async def test_chat_query_with_context(self, glean_client):
         """Test chat query with context."""
-        # Mock the official SDK's chat response
+        # Mock the official SDK's chat response with messages structure
         mock_fragment = MagicMock()
         mock_fragment.text = "Contextual response"
 
@@ -100,28 +129,38 @@ class TestGleanClient:
         context = ["Previous message 1", "Previous message 2"]
 
         # Mock the Glean SDK client
-        with patch.object(glean_client, "_get_client") as mock_get_client:
-            mock_client = MagicMock()
-            mock_client.client.chat.create_async = AsyncMock(return_value=mock_chat_response)
-            mock_get_client.return_value = mock_client
+        mock_client = MagicMock()
+        mock_client.client.chat.create = MagicMock(return_value=mock_chat_response)
 
+        with patch.object(glean_client, "_get_client", return_value=mock_client):
             result = await glean_client.chat_query("Test question", context)
 
             assert result == "Contextual response"
             # Verify that context messages were included
-            call_args = mock_client.client.chat.create_async.call_args
-            messages = call_args.kwargs["messages"]
+            call_args = mock_client.client.chat.create.call_args
+            messages = call_args[1]["messages"]  # Get kwargs
             assert len(messages) == 3  # 2 context + 1 question
 
     @pytest.mark.asyncio
-    async def test_chat_query_http_error(self, glean_client):
-        """Test chat query with API error."""
-        # Mock the Glean SDK to raise an exception
-        with patch.object(glean_client, "_get_client") as mock_get_client:
-            mock_client = MagicMock()
-            mock_client.client.chat.create_async = AsyncMock(side_effect=Exception("Chat API Error"))
-            mock_get_client.return_value = mock_client
+    async def test_chat_query_glean_api_error(self, glean_client):
+        """Test chat query with Glean API error."""
+        # Mock the Glean SDK client
+        mock_client = MagicMock()
+        mock_client.client.chat.create = MagicMock(side_effect=Exception("Chat API Error"))
 
+        with patch.object(glean_client, "_get_client", return_value=mock_client):
+            result = await glean_client.chat_query("Test question")
+
+            assert "Chat query failed" in result
+
+    @pytest.mark.asyncio
+    async def test_chat_query_http_error(self, glean_client):
+        """Test chat query with generic error."""
+        # Mock the Glean SDK client
+        mock_client = MagicMock()
+        mock_client.client.chat.create = MagicMock(side_effect=Exception("Generic Error"))
+
+        with patch.object(glean_client, "_get_client", return_value=mock_client):
             result = await glean_client.chat_query("Test question")
 
             assert "Chat query failed" in result
@@ -138,7 +177,7 @@ class TestGleanClient:
         mock_search_response = MagicMock()
         mock_search_response.results = [mock_search_result]
 
-        # Mock chat response
+        # Mock chat response with messages structure
         mock_fragment = MagicMock()
         mock_fragment.text = "Business overview response"
 
@@ -149,12 +188,11 @@ class TestGleanClient:
         mock_chat_response.messages = [mock_message]
 
         # Mock the Glean SDK client
-        with patch.object(glean_client, "_get_client") as mock_get_client:
-            mock_client = MagicMock()
-            mock_client.client.search.query_async = AsyncMock(return_value=mock_search_response)
-            mock_client.client.chat.create_async = AsyncMock(return_value=mock_chat_response)
-            mock_get_client.return_value = mock_client
+        mock_client = MagicMock()
+        mock_client.client.search.query = MagicMock(return_value=mock_search_response)
+        mock_client.client.chat.create = MagicMock(return_value=mock_chat_response)
 
+        with patch.object(glean_client, "_get_client", return_value=mock_client):
             result = await glean_client.get_company_insights("TestCorp")
 
             assert result["company_name"] == "TestCorp"
@@ -169,7 +207,7 @@ class TestGleanClient:
         mock_search_response = MagicMock()
         mock_search_response.results = []
 
-        # Mock chat responses (business + technical)
+        # Mock chat responses (business + technical) with messages structure
         mock_fragment = MagicMock()
         mock_fragment.text = "Use case specific response"
 
@@ -180,12 +218,11 @@ class TestGleanClient:
         mock_chat_response.messages = [mock_message]
 
         # Mock the Glean SDK client
-        with patch.object(glean_client, "_get_client") as mock_get_client:
-            mock_client = MagicMock()
-            mock_client.client.search.query_async = AsyncMock(return_value=mock_search_response)
-            mock_client.client.chat.create_async = AsyncMock(return_value=mock_chat_response)
-            mock_get_client.return_value = mock_client
+        mock_client = MagicMock()
+        mock_client.client.search.query = MagicMock(return_value=mock_search_response)
+        mock_client.client.chat.create = MagicMock(return_value=mock_chat_response)
 
+        with patch.object(glean_client, "_get_client", return_value=mock_client):
             result = await glean_client.get_company_insights("TestCorp", "payment processing")
 
             assert result["company_name"] == "TestCorp"

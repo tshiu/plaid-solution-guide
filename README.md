@@ -217,4 +217,4 @@ uv run pytest --cov=app --cov-report=term-missing
 
 ---
 
-*Built with ❤️ for Plaid Sales Engineering*
+_Built with ❤️ for Plaid Sales Engineering_

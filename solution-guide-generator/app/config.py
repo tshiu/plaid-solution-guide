@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     debug: bool = False
     log_level: str = "INFO"
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "case_sensitive": False}
+    model_config = {"env_file": "../.env", "env_file_encoding": "utf-8", "case_sensitive": False}
 
 
 # Global settings instance - lazy loaded to allow for testing
