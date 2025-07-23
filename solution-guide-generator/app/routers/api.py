@@ -1,6 +1,7 @@
 """API routes for the solution guide generator."""
 
 import logging
+import time
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
@@ -32,20 +33,34 @@ async def generate_solution_guide(request: TranscriptRequest):
     Raises:
         HTTPException: If the guide generation fails
     """
-    try:
-        logger.info(f"Received guide generation request for company: {request.company_name}")
+    start_time = time.time()
+    logger.info("🎯 SOLUTION GUIDE GENERATION REQUEST")
+    logger.info(f"   Company: {request.company_name}")
+    logger.info(f"   Transcript length: {len(request.transcript)} characters")
+    logger.info(f"   Has additional context: {bool(request.additional_context)}")
+    if request.additional_context:
+        logger.info(f"   Additional context: {request.additional_context[:100]}...")
 
+    try:
         # Validate request
+        logger.info("🔍 Validating request data...")
+
         if not request.transcript.strip():
+            logger.error("❌ Validation failed: Empty transcript")
             raise HTTPException(status_code=400, detail="Transcript cannot be empty")
 
         if not request.company_name.strip():
+            logger.error("❌ Validation failed: Empty company name")
             raise HTTPException(status_code=400, detail="Company name cannot be empty")
 
+        logger.info("✅ Request validation passed")
+
         # Initialize the guide generator
+        logger.info("🏗️  Initializing guide generator...")
         generator = GuideGenerator()
 
         # Generate the solution guide
+        logger.info("🚀 Starting guide generation process...")
         guide = await generator.generate_guide(
             transcript=request.transcript,
             company_name=request.company_name,
@@ -53,6 +68,7 @@ async def generate_solution_guide(request: TranscriptRequest):
         )
 
         # Prepare response
+        logger.info("📦 Preparing response...")
         response = SolutionGuideResponse(
             guide=guide,
             company_name=request.company_name,
@@ -60,17 +76,31 @@ async def generate_solution_guide(request: TranscriptRequest):
                 "transcript_length": len(request.transcript),
                 "has_additional_context": bool(request.additional_context),
                 "generated_successfully": True,
+                "guide_length": len(guide),
+                "processing_time": round(time.time() - start_time, 2),
             },
         )
 
-        logger.info(f"Successfully generated guide for {request.company_name}")
+        total_time = time.time() - start_time
+        logger.info("🎉 SOLUTION GUIDE GENERATION SUCCESSFUL!")
+        logger.info(f"   Company: {request.company_name}")
+        logger.info(f"   Total processing time: {total_time:.2f}s")
+        logger.info(f"   Generated guide length: {len(guide)} characters")
+
         return response
 
-    except HTTPException:
-        # Re-raise HTTP exceptions as-is
+    except HTTPException as he:
+        # Re-raise HTTP exceptions as-is but log them
+        error_time = time.time() - start_time
+        logger.error(f"❌ HTTP Exception after {error_time:.2f}s: {he.status_code} - {he.detail}")
         raise
     except Exception as e:
-        logger.error(f"Error generating guide for {request.company_name}: {e}")
+        error_time = time.time() - start_time
+        logger.error("💥 SOLUTION GUIDE GENERATION FAILED!")
+        logger.error(f"   Company: {request.company_name}")
+        logger.error(f"   Time before failure: {error_time:.2f}s")
+        logger.error(f"   Error type: {type(e).__name__}")
+        logger.error(f"   Error message: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to generate solution guide: {str(e)}")
 
 
@@ -84,24 +114,46 @@ async def validate_environment():
     Returns:
         Dictionary with validation results for different components
     """
+    logger.info("🔧 ENVIRONMENT VALIDATION REQUEST")
+    start_time = time.time()
+
     try:
+        logger.info("   Creating guide generator for validation...")
         generator = GuideGenerator()
+
+        logger.info("   Running validation checks...")
         validation = await generator.validate_environment()
 
+        validation_time = time.time() - start_time
+
+        all_valid = all(validation.values())
+        logger.info(f"🔧 Environment validation completed in {validation_time:.2f}s")
+        logger.info(f"   Overall result: {'✅ VALID' if all_valid else '❌ INVALID'}")
+
+        for component, status in validation.items():
+            status_icon = "✅" if status else "❌"
+            logger.info(f"   {component}: {status_icon} {status}")
+
         return {
-            "valid": all(validation.values()),
+            "valid": all_valid,
             "details": validation,
             "message": "Environment validation completed",
+            "validation_time": round(validation_time, 2),
         }
 
     except Exception as e:
-        logger.error(f"Environment validation failed: {e}")
+        error_time = time.time() - start_time
+        logger.error(f"💥 Environment validation failed after {error_time:.2f}s:")
+        logger.error(f"   Error type: {type(e).__name__}")
+        logger.error(f"   Error message: {str(e)}")
+
         return JSONResponse(
             status_code=500,
             content={
                 "valid": False,
                 "details": {"error": str(e)},
                 "message": "Environment validation failed",
+                "validation_time": round(error_time, 2),
             },
         )
 
@@ -113,11 +165,16 @@ async def api_health_check():
     Returns:
         Basic health status information
     """
-    return {
+    logger.info("❤️  API health check requested")
+
+    health_response = {
         "status": "healthy",
         "service": "solution-guide-generator-api",
         "version": "0.1.0",
     }
+
+    logger.info(f"❤️  API health check: {health_response['status']}")
+    return health_response
 
 
 @router.post("/research-company")
@@ -133,23 +190,55 @@ async def research_company(company_name: str):
     Returns:
         Company research results from Glean
     """
+    start_time = time.time()
+    logger.info("🔍 COMPANY RESEARCH REQUEST")
+    logger.info(f"   Company: {company_name}")
+
     try:
+        # Validate input
         if not company_name.strip():
+            logger.error("❌ Validation failed: Empty company name")
             raise HTTPException(status_code=400, detail="Company name cannot be empty")
 
+        logger.info("✅ Request validation passed")
+
+        # Initialize generator and research company
+        logger.info("🏗️  Creating guide generator for research...")
         generator = GuideGenerator()
+
+        logger.info("🔬 Starting company research...")
         insights = await generator._research_company(
             company_name=company_name,
             transcript="",  # Empty transcript for standalone research
             additional_context=None,
         )
 
+        research_time = time.time() - start_time
+
+        if "error" in insights:
+            logger.warning(f"⚠️  Research completed with issues in {research_time:.2f}s")
+            logger.warning(f"   Error: {insights['error']}")
+        else:
+            logger.info(f"🎉 Company research successful in {research_time:.2f}s")
+            logger.info(f"   Company: {company_name}")
+
         return {
             "company_name": company_name,
             "research_results": insights,
             "message": "Company research completed successfully",
+            "research_time": round(research_time, 2),
         }
 
+    except HTTPException as he:
+        # Re-raise HTTP exceptions as-is but log them
+        error_time = time.time() - start_time
+        logger.error(f"❌ HTTP Exception after {error_time:.2f}s: {he.status_code} - {he.detail}")
+        raise
     except Exception as e:
-        logger.error(f"Error researching company {company_name}: {e}")
+        error_time = time.time() - start_time
+        logger.error("💥 COMPANY RESEARCH FAILED!")
+        logger.error(f"   Company: {company_name}")
+        logger.error(f"   Time before failure: {error_time:.2f}s")
+        logger.error(f"   Error type: {type(e).__name__}")
+        logger.error(f"   Error message: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to research company: {str(e)}")

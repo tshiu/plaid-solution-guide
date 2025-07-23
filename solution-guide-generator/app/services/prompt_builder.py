@@ -15,11 +15,15 @@ class PromptBuilder:
 
     def __init__(self):
         """Initialize the prompt builder with templates."""
+        logger.info("📝 Initializing Prompt Builder...")
         self.template_example = self._load_template_example()
+        logger.info("✅ Prompt Builder initialized with template example")
 
     def _load_template_example(self) -> str:
         """Load the guide template as a reference example."""
-        return """
+        logger.info("📋 Loading template example for prompt building...")
+
+        template = """
 # CompanyName + Plaid // Solutions Guide
 
 ## What You're Building
@@ -74,6 +78,9 @@ HOA financial management platform that needs to:
 3. **Production**: Full access after commercial agreement
 """
 
+        logger.info(f"✅ Template example loaded: {len(template)} characters")
+        return template
+
     def build_solution_guide_prompt(
         self,
         transcript: str,
@@ -92,11 +99,28 @@ HOA financial management platform that needs to:
         Returns:
             Formatted prompt string for LLM generation
         """
+        logger.info("🏗️  Building solution guide prompt...")
+        logger.info(f"   Company: {company_name}")
+        logger.info(f"   Transcript length: {len(transcript)} characters")
+        logger.info(f"   Has additional context: {bool(additional_context)}")
 
         # Extract relevant information from company research
+        logger.info("📊 Extracting information from company research...")
         business_overview = company_research.get("business_overview", "No business overview available")
         technical_context = company_research.get("technical_context", "No technical context available")
 
+        has_business_overview = business_overview != "No business overview available"
+        has_technical_context = technical_context != "No technical context available"
+
+        logger.info(f"   Business overview available: {has_business_overview}")
+        logger.info(f"   Technical context available: {has_technical_context}")
+
+        if has_business_overview:
+            logger.info(f"   Business overview length: {len(business_overview)} characters")
+        if has_technical_context:
+            logger.info(f"   Technical context length: {len(technical_context)} characters")
+
+        logger.info("📝 Constructing comprehensive prompt...")
         prompt = f"""You are an expert sales engineer creating technical solution guides for Plaid's financial APIs.
 
 Your task is to analyze this call transcript from {company_name} and generate a concise, technical solution guide \
@@ -140,6 +164,14 @@ Generate a solution guide for {company_name} that follows these principles:
 ## OUTPUT:
 Generate the complete solution guide for {company_name} now, following the exact style and structure of the example:"""
 
+        logger.info(f"✅ Solution guide prompt constructed: {len(prompt)} characters")
+        logger.info("   Prompt includes:")
+        logger.info("     ✓ Call transcript")
+        logger.info("     ✓ Company research data")
+        logger.info("     ✓ Template example")
+        logger.info("     ✓ Detailed instructions")
+        logger.info("     ✓ Output requirements")
+
         return prompt
 
     def build_company_research_prompt(self, company_name: str, transcript_excerpt: str) -> str:
@@ -152,7 +184,10 @@ Generate the complete solution guide for {company_name} now, following the exact
         Returns:
             Research prompt for Glean chat
         """
-        return f"""Based on this call transcript excerpt from {company_name}, help me understand their business \
+        logger.info(f"🔍 Building company research prompt for '{company_name}'...")
+        logger.info(f"   Transcript excerpt length: {len(transcript_excerpt)} characters")
+
+        research_prompt = f"""Based on this call transcript from {company_name}, help me understand their business
 and technical requirements:
 
 TRANSCRIPT EXCERPT:
@@ -166,3 +201,13 @@ Please provide:
 5. Who are their likely customers/users?
 
 Focus on information that would help create a targeted technical solution guide."""
+
+        logger.info(f"✅ Company research prompt built: {len(research_prompt)} characters")
+        logger.info("   Research prompt will ask about:")
+        logger.info("     • Industry/sector")
+        logger.info("     • Business model")
+        logger.info("     • Technical challenges")
+        logger.info("     • Integration requirements")
+        logger.info("     • Customer base")
+
+        return research_prompt
