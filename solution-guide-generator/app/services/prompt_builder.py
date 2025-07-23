@@ -41,11 +41,15 @@ HOA financial management platform that needs to:
 
 **Customization**: Logo, colors, copy via dashboard templates
 
+**Documentation**: [Link Overview](https://plaid.com/docs/link/) | [Auth API](https://plaid.com/docs/auth/)
+
 ### 2. Stripe Integration (`Auth`)
 **One extra API call** after account connection
 
 ### 3. Transaction Data (`Transactions`)
 **Real-time transaction sync** for accounting features
+
+**Documentation**: [Transactions API](https://plaid.com/docs/transactions/)
 
 ## Integration Flow
 
@@ -100,8 +104,25 @@ sequenceDiagram
 ## Answers to Your Questions
 [Table format with specific Q&A from the call]
 
+## Documentation & Resources
+
+### Core API Documentation
+- **[Plaid Link](https://plaid.com/docs/link/)** - Client-side account connection flow
+- **[Auth API](https://plaid.com/docs/auth/)** - Account/routing numbers for ACH and payments
+- **[Transactions API](https://plaid.com/docs/transactions/)** - Real-time transaction data access
+- **[Identity API](https://plaid.com/docs/identity/)** - Account holder verification
+- **[Assets API](https://plaid.com/docs/assets/)** - Comprehensive financial reports
+
+### Developer Tools & Resources
+- **[API Reference](https://plaid.com/docs/api/)** - Complete endpoint documentation
+- **[Quickstart Guide](https://plaid.com/docs/quickstart/)** - Get started in minutes
+- **[Postman Collection](https://plaid.com/docs/developer-tools/postman/)** - Test APIs easily
+
+### Support & Community
+- **[Developer Support](https://plaid.com/docs/resources/)** - Technical support resources
+
 ## Getting Started
-1. **Sandbox**: Test with fake banks
+1. **Sandbox**: Test with fake banks using [Quickstart Guide](https://plaid.com/docs/quickstart/)
 2. **Limited Production**: Real banks, capped API calls
 3. **Production**: Full access after commercial agreement
 """
@@ -180,6 +201,7 @@ Generate a solution guide for {company_name} that follows these principles:
 5. **Provide actionable next steps** - Clear implementation roadmap
 6. **Match the tone and structure** - Concise, practical, technically focused like the example
 7. **Include sequence diagrams** - Add a Mermaid sequence diagram showing the integration flow
+8. **Include relevant documentation links** - Add links to Plaid's developer documentation throughout
 
 ## KEY REQUIREMENTS:
 - Title format: "{company_name} + Plaid // Solutions Guide"
@@ -189,7 +211,34 @@ Generate a solution guide for {company_name} that follows these principles:
 - Add "Key Technical Details" with implementation specifics
 - Include "What You Get Out of the Box" with relevant benefits
 - Create "Answers to Your Questions" section addressing call discussion points
+- **MANDATORY**: Include "Documentation & Resources" section with relevant Plaid documentation links
 - End with "Getting Started" steps
+
+## PLAID DOCUMENTATION LINKS TO INCLUDE:
+Use these official Plaid documentation URLs where relevant:
+
+### Core API Documentation:
+- **Plaid Link**: https://plaid.com/docs/link/ (account connection flow)
+- **Auth API**: https://plaid.com/docs/auth/ (account/routing numbers for ACH)
+- **Transactions API**: https://plaid.com/docs/transactions/ (transaction data access)
+- **Identity API**: https://plaid.com/docs/identity/ (account holder verification)
+- **Assets API**: https://plaid.com/docs/assets/ (comprehensive financial reports)
+
+### Developer Resources:
+- **API Reference**: https://plaid.com/docs/api/ (complete endpoint documentation)
+- **Quickstart Guide**: https://plaid.com/docs/quickstart/ (getting started tutorial)
+- **Postman Collection**: https://plaid.com/docs/developer-tools/postman/ (API testing tools)
+- **Developer Support**: https://plaid.com/docs/resources/ (technical support resources)
+
+## DOCUMENTATION INTEGRATION REQUIREMENTS:
+1. **In Core Integration section**: Add documentation links for each Plaid product mentioned
+2. **In Key Technical Details**: Link to relevant API references and guides
+3. **In Getting Started**: Include link to Quickstart Guide for sandbox setup
+4. **Create comprehensive Documentation & Resources section** with:
+   - Core API Documentation subsection
+   - Developer Tools & Resources subsection  
+   - Support & Community subsection
+5. **Throughout the guide**: Add inline links where specific APIs or features are mentioned
 
 ## SEQUENCE DIAGRAM REQUIREMENTS:
 - Use Mermaid syntax: ```mermaid sequenceDiagram ... ```
