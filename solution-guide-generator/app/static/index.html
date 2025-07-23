@@ -6,6 +6,8 @@
     <title>Solution Guide Generator</title>
     <!-- Add marked.js for markdown rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Add Mermaid.js for diagram rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <style>
       * {
         margin: 0;
@@ -485,6 +487,84 @@
         font-size: 1rem;
       }
 
+      /* Mermaid diagram styling */
+      .guide-output .mermaid {
+        background: linear-gradient(135deg, #fafbfc 0%, #f8fafe 100%);
+        border: 2px solid #e8eef5;
+        border-radius: 12px;
+        padding: 2rem;
+        margin: 2rem 0;
+        text-align: center;
+        box-shadow: 0 4px 16px rgba(0, 64, 128, 0.12);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .guide-output .mermaid::before {
+        content: "📊 Integration Flow";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, #004080 0%, #0066cc 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-align: left;
+        border-radius: 12px 12px 0 0;
+        margin: -2rem -2rem 1.5rem -2rem;
+      }
+
+      .guide-output .mermaid svg {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+      }
+
+      /* Enhance Mermaid sequence diagram styling */
+      .guide-output .mermaid .actor {
+        fill: #0066cc !important;
+        stroke: #004080 !important;
+      }
+
+      .guide-output .mermaid .messageLine0,
+      .guide-output .mermaid .messageLine1 {
+        stroke: #004080 !important;
+        stroke-width: 2 !important;
+      }
+
+      .guide-output .mermaid .messageText {
+        fill: #1a1f36 !important;
+        font-weight: 500 !important;
+      }
+
+      .guide-output .mermaid .loopText {
+        fill: #4a5568 !important;
+      }
+
+      /* Ensure Mermaid diagrams are responsive */
+      .guide-output pre.mermaid {
+        background: white;
+        color: #1a1f36;
+        border: 1px solid #e8eef5;
+        overflow: visible;
+      }
+
+      /* Mobile responsiveness for diagrams */
+      @media (max-width: 768px) {
+        .guide-output .mermaid {
+          padding: 1rem;
+          margin: 1rem 0;
+        }
+        
+        .guide-output .mermaid::before {
+          margin: -1rem -1rem 1rem -1rem;
+          font-size: 0.8rem;
+        }
+      }
+
       @media (max-width: 768px) {
         body {
           padding: 10px;
@@ -648,6 +728,33 @@
         sanitize: false,
       });
 
+      // Configure Mermaid
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'default',
+        securityLevel: 'loose',
+        flowchart: {
+          useMaxWidth: true,
+          htmlLabels: true
+        },
+        sequence: {
+          diagramMarginX: 50,
+          diagramMarginY: 10,
+          actorMargin: 50,
+          width: 150,
+          height: 65,
+          boxMargin: 10,
+          boxTextMargin: 5,
+          noteMargin: 10,
+          messageMargin: 35,
+          mirrorActors: true,
+          bottomMarginAdj: 1,
+          useMaxWidth: true,
+          rightAngles: false,
+          showSequenceNumbers: false
+        }
+      });
+
       document
         .getElementById("guideForm")
         .addEventListener("submit", async function (e) {
@@ -708,7 +815,7 @@
             `;
       }
 
-      function showResult(guide, companyName) {
+      async function showResult(guide, companyName) {
         const resultDiv = document.getElementById("result");
 
         // Render markdown as HTML
@@ -728,6 +835,38 @@
                     </button>
                 </div>
             `;
+
+        // Process any Mermaid diagrams
+        await renderMermaidDiagrams();
+      }
+
+      async function renderMermaidDiagrams() {
+        const mermaidElements = document.querySelectorAll('code.language-mermaid, pre code.language-mermaid');
+        
+        for (let i = 0; i < mermaidElements.length; i++) {
+          const element = mermaidElements[i];
+          const mermaidCode = element.textContent;
+          
+          try {
+            // Create a unique ID for each diagram
+            const diagramId = `mermaid-diagram-${Date.now()}-${i}`;
+            
+            // Render the Mermaid diagram
+            const { svg } = await mermaid.render(diagramId, mermaidCode);
+            
+            // Replace the code block with the rendered SVG
+            const wrapper = document.createElement('div');
+            wrapper.className = 'mermaid';
+            wrapper.innerHTML = svg;
+            
+            // Replace the parent pre or code element
+            const parentPre = element.closest('pre') || element;
+            parentPre.parentNode.replaceChild(wrapper, parentPre);
+          } catch (error) {
+            console.error('Error rendering Mermaid diagram:', error);
+            // Keep the original code block if rendering fails
+          }
+        }
       }
 
       function showError(message) {
@@ -879,7 +1018,7 @@
         document.addEventListener("keydown", escapeHandler);
       }
 
-      function toggleRawView() {
+      async function toggleRawView() {
         const guideContent = document.getElementById("guideContent");
         const toggleBtn = document.querySelector(".raw-toggle");
 
@@ -889,6 +1028,9 @@
           guideContent.className = "guide-output";
           toggleBtn.textContent = "👁️ Toggle Raw View";
           showingRaw = false;
+          
+          // Re-render Mermaid diagrams
+          await renderMermaidDiagrams();
         } else {
           // Show raw markdown
           guideContent.innerHTML = `<pre style="white-space: pre-wrap; font-family: 'Monaco', 'Consolas', monospace; margin: 0;">${escapeHtml(

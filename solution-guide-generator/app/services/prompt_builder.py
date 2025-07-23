@@ -47,6 +47,34 @@ HOA financial management platform that needs to:
 ### 3. Transaction Data (`Transactions`)
 **Real-time transaction sync** for accounting features
 
+## Integration Flow
+
+```mermaid
+sequenceDiagram
+    participant User as HOA User
+    participant App as Your App
+    participant Plaid as Plaid Link
+    participant Bank as User's Bank
+    participant Stripe as Stripe
+
+    User->>App: Click "Connect Bank Account"
+    App->>Plaid: Initialize Link Token
+    Plaid-->>App: Link Token
+    App->>User: Show Plaid Link UI
+    User->>Plaid: Enter bank credentials
+    Plaid->>Bank: Authenticate user
+    Bank-->>Plaid: Auth success
+    Plaid-->>App: public_token
+    App->>Plaid: Exchange for access_token
+    Plaid-->>App: access_token & account info
+    App->>Plaid: Get Auth data (account/routing)
+    Plaid-->>App: Account details
+    App->>Stripe: Create processor token
+    Stripe-->>App: Processor token
+    App->>Plaid: Start transaction sync
+    Plaid-->>App: Transaction data
+```
+
 ## Key Technical Details
 
 ### Access Token Management
@@ -151,15 +179,24 @@ Generate a solution guide for {company_name} that follows these principles:
 4. **Address specific questions** - Extract and answer questions raised in the call transcript
 5. **Provide actionable next steps** - Clear implementation roadmap
 6. **Match the tone and structure** - Concise, practical, technically focused like the example
+7. **Include sequence diagrams** - Add a Mermaid sequence diagram showing the integration flow
 
 ## KEY REQUIREMENTS:
 - Title format: "{company_name} + Plaid // Solutions Guide"
 - Start with "What You're Building" section describing their specific use case
 - Include "Core Integration" section with specific Plaid products needed
+- **MANDATORY**: Add "Integration Flow" section with a Mermaid sequence diagram showing the step-by-step process
 - Add "Key Technical Details" with implementation specifics
 - Include "What You Get Out of the Box" with relevant benefits
 - Create "Answers to Your Questions" section addressing call discussion points
 - End with "Getting Started" steps
+
+## SEQUENCE DIAGRAM REQUIREMENTS:
+- Use Mermaid syntax: ```mermaid sequenceDiagram ... ```
+- Include key participants: User, Your App, Plaid, Bank, and any third-party services mentioned
+- Show the complete flow from user action to final result
+- Include API calls, token exchanges, and data flows
+- Make it specific to {company_name}'s use case and requirements
 
 ## OUTPUT:
 Generate the complete solution guide for {company_name} now, following the exact style and structure of the example:"""
