@@ -1,6 +1,7 @@
 """Main FastAPI application entry point."""
 
 import logging
+import os
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -13,21 +14,21 @@ from fastapi.staticfiles import StaticFiles
 from app.config import get_settings, setup_logging
 from app.routers.api import router as api_router
 
+setup_logging(os.getenv("LOG_LEVEL", "INFO"))
+logger = logging.getLogger(__name__)
+
 # Initialize settings and logging
 try:
     settings = get_settings()
-    setup_logging(settings.log_level)
 except Exception:
     # Fallback for development/testing
     class MockSettings:
         debug = True
         log_level = "INFO"
-        glean_instance = "test-instance"
+        glean_instance = "no-instance-available"
 
     settings = MockSettings()
-    setup_logging("INFO")
 
-logger = logging.getLogger(__name__)
 
 # Get the absolute path to the static directory
 STATIC_DIR = Path(__file__).parent / "static"

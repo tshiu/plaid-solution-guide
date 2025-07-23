@@ -470,8 +470,8 @@
             const result = await response.json();
 
             if (response.ok) {
-              currentGuide = result.solution_guide;
-              showResult(result.solution_guide, data.company_name);
+              currentGuide = result.guide;
+              showResult(result.guide, data.company_name);
             } else {
               showError(result.detail || "Failed to generate solution guide");
             }

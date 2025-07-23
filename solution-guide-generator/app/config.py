@@ -2,7 +2,7 @@
 
 import logging
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def setup_logging(log_level: str = "INFO") -> None:
@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     debug: bool = False
     log_level: str = "INFO"
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "case_sensitive": False}
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=False)
 
 
 # Global settings instance - lazy loaded to allow for testing
@@ -50,13 +50,3 @@ def get_settings() -> Settings:
     except Exception as e:
         logger.error(f"❌ Failed to load configuration: {e}")
         raise
-
-
-# For convenience, create a settings instance at module level
-# This can be overridden in tests by mocking the Settings class
-try:
-    settings = Settings()
-except Exception:
-    # Allow module to be imported even without proper environment configuration
-    # This is useful for testing and development
-    settings = None

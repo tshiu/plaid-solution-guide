@@ -43,7 +43,8 @@ dev: install
 run:
 	@echo "🚀 Starting Solution Guide Generator..."
 	@if [ ! -f ".env" ]; then \
-		echo "❌ Please create .env with your Glean credentials."; \
+		echo "❌ .env file not found"; \
+		echo "   Create it from .env.example and add your Glean credentials"; \
 		exit 1; \
 	fi
 	@echo "🌟 Starting server at http://localhost:8000"
@@ -52,7 +53,7 @@ run:
 # Run tests
 test:
 	@echo "🧪 Running tests..."
-	cd solution-guide-generator && GLEAN_INSTANCE=test-instance GLEAN_API_TOKEN=test-token uv run pytest tests/ -v
+	cd solution-guide-generator && GLEAN_INSTANCE=makefile-instance GLEAN_API_TOKEN=makefile-token uv run pytest tests/ -v
 	@echo "✅ All tests passed!"
 
 # Lint code
@@ -71,8 +72,8 @@ format:
 # Validate environment
 validate-env:
 	@echo "🔧 Validating environment..."
-	@if [ ! -f "solution-guide-generator/.env" ]; then \
-		echo "❌ .env file not found in solution-guide-generator/"; \
+	@if [ ! -f ".env" ]; then \
+		echo "❌ .env file not found"; \
 		echo "   Create it from .env.example and add your Glean credentials"; \
 		exit 1; \
 	fi

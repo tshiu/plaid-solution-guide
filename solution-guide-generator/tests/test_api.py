@@ -178,9 +178,9 @@ class TestAPI:
         response = client.post("/api/v1/research-company?company_name=")
 
         # The endpoint handles empty string and should return proper error
-        assert response.status_code == 500  # Current behavior due to HTTPException being caught as generic error
+        assert response.status_code == 400  # HTTP 400 for validation error (improved behavior)
         data = response.json()
-        assert "Failed to research company" in data["detail"]
+        assert "Company name cannot be empty" in data["detail"]
 
     def test_research_company_missing_name(self, client):
         """Test company research without company name parameter."""
